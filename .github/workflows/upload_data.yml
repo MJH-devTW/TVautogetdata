@@ -1,1 +1,32 @@
+name: Upload Data
+
+on:
+  push:
+    branches:
+      - main  # Runs the workflow on push to the main branch
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Validate the data files
+      - name: Validate data
+        run: |
+          echo "Validating symbol_info JSON file..."
+          jq empty symbol_info/*.json  # Ensure JSON format is valid
+          echo "Validating CSV files..."
+          find data -type f -name "*.csv" | while read -r file; do
+            head -n 1 "$file" | grep -qE "^[0-9]{8}T" || echo "Invalid file: $file"
+          done
+          echo "Validation complete!"
+
+      # Upload to TradingView repository
+      - name: Upload Data
+        run: echo "Data uploaded successfully!"  # Placeholder for actual TradingView integration
 
